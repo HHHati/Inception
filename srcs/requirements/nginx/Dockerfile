@@ -1,0 +1,22 @@
+FROM debian:buster
+
+# Installer mettre a jour apt et installer nginx
+RUN apt update
+RUN apt upgrade
+RUN apt install nginx -y
+
+# Mettre en place le TSL (Transport Layer Security)
+RUN mkdir -p /etc/nginx/ssl
+RUN apt install openssl -y
+RUN openssl req -x509 -nodes -out /etc/nginx/ssl/inception.crt -keyout /etc/nginx/ssl/inception.key -subj "/C=FR/ST=IDF/L=Paris/O=42/OU=42/CN=bade-lee.42.fr/UID=bade-lee"
+
+# Stocker les fichiers de config
+RUN mkdir -p /var/run/nginx
+COPY conf/nginx.conf /etc/nginx/nginx.conf
+
+# S'assurer d'avoir les droits sur les fichiers necessaires
+RUN chmod 755 /var/www/html
+RUN chown -R www-data:www-data /var/www/html
+
+# Lancer nginx
+CMD [ "nginx", "-g", "daemon off;" ]
