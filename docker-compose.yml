@@ -44,7 +44,6 @@ services:
 
 networks:
   inception_network:
-    name: inception_network
 
 
 volumes:
