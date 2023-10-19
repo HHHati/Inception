@@ -6,7 +6,7 @@
 #    By: bade-lee <bade-lee@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/07/07 16:18:15 by bade-lee          #+#    #+#              #
-#    Updated: 2023/10/19 16:41:38 by bade-lee         ###   ########.fr        #
+#    Updated: 2023/10/19 16:47:19 by bade-lee         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,13 +17,13 @@ all:
 	@if [ ! -d "/home/bade-lee/data/html" ]; then \
 		mkdir -p /home/bade-lee/data/html; \
 	fi
-	docker-compose -f ./srcs/docker-compose.yml up -d
+	docker compose -f ./srcs/docker-compose.yml up -d
 
 down:
-	docker-compose -f  ./srcs/docker-compose.yml down
+	docker compose -f  ./srcs/docker-compose.yml down
 
 clean:
-	docker-compose -f ./srcs/docker-compose.yml down --rmi all -v
+	docker compose -f ./srcs/docker-compose.yml down --rmi all -v
 
 fclean: clean
 	@if [ -d "/home/bade-lee/data" ]; then \
