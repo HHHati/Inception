@@ -1,59 +1,60 @@
 version: "3"
 
 services:
-  nginx:
-    container_name: nginx
-    image: inception/nginx
-    build: requirements/nginx
-    depends_on:
-      - wordpress
-    ports:
-      - 443:443
-    volumes:
-      - inception_app_data:/app
+  mariadb:
+    container_name: mariadb
+    image: inception/mariadb
+    build: ./requirements/mariadb
+    env_file: .env
     networks:
-      - inception_net
+      - my_network
+    volumes:
+      - mariadb_volume:/var/lib/mysql
     restart: unless-stopped
 
   wordpress:
     container_name: wordpress
     image: inception/wordpress
-    build: requirements/wordpress
+    build: ./requirements/wordpress
+    env_file: .env
     depends_on:
-      - mariadb
+      mariadb:
+        condition: service_healthy
+    networks: 
+      - my_network
     volumes:
-      - inception_app_data:/app
-    env_file: .env
-    networks:
-      - inception_net
+      - wordpress_volume:/var/www/wordpress
     restart: unless-stopped
 
-  mariadb:
-    container_name: mariadb
-    image: inception/mariadb
-    build: requirements/mariadb
-    volumes:
-      - inception_db_data:/var/lib/mysql
+  nginx:
+    container_name: nginx
+    image: inception/nginx
+    build: ./requirements/nginx
     env_file: .env
+    depends_on:
+      - wordpress
     networks:
-      - inception_net
+      - my_network
+    volumes:
+      - wordpress_volume:/var/www/wordpress
+    ports:
+      - 443:443
     restart: unless-stopped
-
-volumes:
-
-  inception_app_data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: $HOME/data/wp
-
-  inception_db_data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: $HOME/data/db
 
 networks:
-  inception_net:
+  my_network:
+
+volumes:
+  mariadb_volume:
+    driver: local
+    driver_opts:
+      device: /home/bade-lee/data/database
+      type: volume
+      o: bind
+
+  wordpress_volume:
+    driver: local
+    driver_opts:
+      device: /home/bade-lee/data/wordpress
+      type: volume
+      o: bind
