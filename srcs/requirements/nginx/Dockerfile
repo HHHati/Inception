@@ -1,15 +1,14 @@
 FROM debian:bullseye
 
-RUN apt-get update && apt-get install -y nginx openssl && rm -rf /var/lib/apt/lists/*
+RUN apt-get update -y
+RUN apt-get upgrade -y
+RUN apt-get install nginx openssl -y
 
-RUN rm /etc/nginx/sites-enabled/default
-COPY tools/bade-lee.42.fr.conf /etc/nginx/sites-enabled/
+COPY ./config/nginx.conf /etc/nginx/sites-enabled/default.conf
 
-RUN mkdir -p /etc/nginx/ssl && openssl req -x509 \
-			-sha256 -days 356 \
-			-nodes \
-			-newkey rsa:2048 \
-			-subj "/CN=bade-lee.42.fr/C=FR/L=Paris/O=bade-lee@42" \
-			-keyout /etc/nginx/ssl/inception.key -out /etc/nginx/ssl/inception.crt
+RUN openssl req -x509 -nodes \
+    -out /etc/ssl/bade-lee.42.fr.crt \
+    -keyout /etc/ssl/bade-lee.42.fr.key \
+    -subj "/C=BE/ST=Belgium/L=Brussels/O=42/OU=19/CN=bade-lee.42.fr/UID=bade-lee"
 
-ENTRYPOINT ["nginx", "-g", "daemon off;"]
+ENTRYPOINT [ "nginx", "-g", "daemon off;" ]
