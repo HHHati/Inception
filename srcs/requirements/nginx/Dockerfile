@@ -1,6 +1,6 @@
 FROM debian:bullseye
 
-RUN apt-get update && apt-get install -y nginx openssl apache2
+RUN apt-get update && apt-get install -y nginx openssl apache2 openrc
 
 RUN rc-update add apache2
 
