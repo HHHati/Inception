@@ -4,7 +4,7 @@ RUN apt-get update -y
 RUN apt-get upgrade -y
 RUN apt-get install nginx openssl -y
 
-COPY ./config/nginx.conf /etc/nginx/sites-enabled/default.conf
+COPY ./conf/nginx.conf /etc/nginx/sites-enabled/default.conf
 
 RUN openssl req -x509 -nodes \
     -out /etc/ssl/bade-lee.42.fr.crt \

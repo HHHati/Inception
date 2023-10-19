@@ -9,8 +9,8 @@ RUN mkdir -p /var/run/mysqld
 RUN mkfifo /var/run/mysqld/mysqld.sock
 RUN chown -R mysql:mysql /var/run/mysqld
 
-COPY ./config/mariadb.cnf /etc/mysql
-COPY ./config/config.sql ./
-COPY ./config/config.sh ./
+COPY ./conf/mariadb.cnf /etc/mysql
+COPY ./conf/config.sql ./
+COPY ./conf/config.sh ./
 
 ENTRYPOINT [ "bash" , "config.sh" ]
