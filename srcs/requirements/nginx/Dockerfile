@@ -1,6 +1,6 @@
 FROM debian:bullseye
 
-RUN apk update && apk add --no-cache openrc nginx openssl bash apache2
+RUN apt-get update && apt-get install -y nginx openssl apache2
 
 RUN rc-update add apache2
 
