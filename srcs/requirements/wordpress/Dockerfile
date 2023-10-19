@@ -1,16 +1,18 @@
-# syntax=docker/dockerfile:1
-FROM		debian:bullseye
+FROM debian:bullseye
 
-RUN			apt-get update && apt-get upgrade -y
-RUN			apt-get install -y wget php7.4 php7.4-fpm php7.4-mysql mariadb-client
+RUN apt update -y \
+    && apt upgrade \
+    && apt install apt-utils \
+    && apt install php-fpm php-mysql -y \
+    && apt install wget -y \
+    && apt install mariadb-client -y
 
-RUN			wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-RUN			chmod +x wp-cli.phar
-RUN			mv wp-cli.phar /usr/local/bin/wp
+RUN wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+RUN chmod +x wp-cli.phar
+RUN mv wp-cli.phar /usr/local/bin/wp
 
-COPY		conf/entrypoint.sh /entrypoint.sh
-RUN			chmod +x /entrypoint.sh
-COPY		conf/www.conf /etc/php/7.4/fpm/pool.d/www.conf
+COPY ./conf/php-fpm.conf /etc/php/7.4/fpm/pool.d/www.conf
+COPY ./tools/setup.sh /
+RUN chmod +x /setup.sh
 
-ENTRYPOINT	["/entrypoint.sh"]
-CMD			["/usr/sbin/php-fpm7.4", "-F"]
+ENTRYPOINT ["/setup.sh"]

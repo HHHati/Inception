@@ -1,21 +1,35 @@
-all: build up
+FILE = ./srcs/docker-compose.yml
 
-.PHONY:	build
-build: 
-	cd srcs && docker compose -f docker-compose.yml build
+all:
+	@sudo mkdir -p /home/data_inception/DB /home/data_inception/wordpress_files
+	@docker compose -f $(FILE) up -d --build
 
-.PHONY: up
 up:
-	cd srcs && docker compose -f docker-compose.yml up
+	@docker compose -f $(FILE) up -d
 
-.PHONY: clean
+down:
+	@docker compose -f $(FILE) stop
+
+re: clean all
+
 clean:
-	docker system prune -af
+	@docker stop $$(docker ps -qa);\
+	docker rm $$(docker ps -qa);\
+	docker rmi -f $$(docker images -qa);\
+	docker volume rm $$(docker volume ls -q);\
+	sudo rm -rf /home/data_inception
 
-.PHONY: fclean
-fclean: clean
-	sudo rm -rf /home/bade-lee/data/DB/*
-	sudo rm -rf /home/bade-lee/data/WordPress/*
+logs:
+	@$(eval CONTAINERS := $(filter-out $@,$(MAKECMDGOALS)))
+	docker-compose -f $(FILE) logs --tail 50 --follow --timestamps $(CONTAINERS)
 
-.PHONY: re
-re: fclean all
+run:
+	@$(eval CONTAINER := $(filter-out $@,$(MAKECMDGOALS)))
+	docker exec -it $(CONTAINER) /bin/bash
+
+status: ${FILE}
+	@docker compose -f ${FILE} ps 
+	@echo "---"
+	@docker stats --no-stream ${SERVICES}
+
+.PHONY: all re down clean
