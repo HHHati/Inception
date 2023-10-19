@@ -6,31 +6,28 @@
 #    By: bade-lee <bade-lee@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/07/07 16:18:15 by bade-lee          #+#    #+#              #
-#    Updated: 2023/10/19 15:35:48 by bade-lee         ###   ########.fr        #
+#    Updated: 2023/10/19 15:37:24 by bade-lee         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-PATH_COMPOSE = srcs/docker-compose.yml
+all: up
 
-all:
-	@docker compose -f $(PATH_COMPOSE) up -d
-
-build:
-	@docker compose -f $(PATH_COMPOSE) up -d --build
+up:
+	docker compose -f ./srcs/docker-compose.yml build
+	mkdir -p /home/bade-lee/data/mariadb
+	mkdir -p /home/bade-lee/data/wordpress
+	docker compose -f ./srcs/docker-compose.yml up --detach
 
 down:
-	@docker compose -f $(PATH_COMPOSE) down
+	docker compose -f ./srcs/docker-compose.yml down
 
-re:
-	@docker compose -f $(PATH_COMPOSE) up -d --build
+rm: down
+	docker volume rm srcs_mariadb_volume
+	docker volume rm srcs_wordpress_volume
+	docker image rm srcs_mariadb
+	docker image rm srcs_wordpress
+	docker image rm srcs_nginx
+	docker image rm debian:bullseye
+	sudo rm -rf /home/bade-lee/data
 
-clean: down
-	@docker system prune -a
-
-fclean:
-	@docker stop $$(docker ps -qa)
-	@docker system prune --all --force --volumes
-	@docker network prune --force
-	@docker volume prune --force
-
-.PHONY: all build down re clean fclean
+.PHONY: all up down clean fclean
