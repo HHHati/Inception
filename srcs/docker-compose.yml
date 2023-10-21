@@ -4,7 +4,7 @@ services:
     nginx:
       container_name: nginx
       build: requirements/nginx
-      image: nginx:bade-lee
+      image: nginx
       depends_on:
         - wordpress
       networks:
@@ -19,7 +19,7 @@ services:
     mariadb:
       container_name: mariadb
       build: requirements/mariadb
-      image: mariadb:bade-lee
+      image: mariadb
       networks:
         - docker_network
       volumes:
@@ -30,7 +30,7 @@ services:
     wordpress:
       container_name: wordpress
       build: requirements/wordpress
-      image: wordpress:bade-lee
+      image: wordpress
       depends_on: 
         - mariadb
       networks:
@@ -41,7 +41,7 @@ services:
       env_file: .env
 
 networks:
-    docker_network:
+    inception_network:
 
 volumes:
     wordpress:
