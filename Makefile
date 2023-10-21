@@ -1,35 +1,43 @@
-FILE = ./srcs/docker-compose.yml
-
 all:
-	@sudo mkdir -p /home/data_inception/DB /home/data_inception/wordpress_files
-	@docker compose -f $(FILE) up -d --build
-
-up:
-	@docker compose -f $(FILE) up -d
+	@if [ ! -d "/home/bade-lee/data/mysql" ]; then \
+		mkdir -p /home/bade-lee/data/mysql; \
+	fi
+	@if [ ! -d "/home/bade-lee/data/html" ]; then \
+		mkdir -p /home/bade-lee/data/html; \
+	fi
+	docker compose -f ./srcs/docker-compose.yml up -d
 
 down:
-	@docker compose -f $(FILE) stop
-
-re: clean all
+	docker compose -f  ./srcs/docker-compose.yml down
 
 clean:
-	@docker stop $$(docker ps -qa);\
-	docker rm $$(docker ps -qa);\
-	docker rmi -f $$(docker images -qa);\
-	docker volume rm $$(docker volume ls -q);\
-	sudo rm -rf /home/data_inception
+	docker compose -f ./srcs/docker-compose.yml down --rmi all -v
 
-logs:
-	@$(eval CONTAINERS := $(filter-out $@,$(MAKECMDGOALS)))
-	docker-compose -f $(FILE) logs --tail 50 --follow --timestamps $(CONTAINERS)
+fclean: clean
+	@if [ -d "/home/bade-lee/data" ]; then \
+	rm -rf /home/bade-lee/data/* && \
+	echo "successfully removed all contents from /home/bade-lee/data"; \
+	fi;
 
-run:
-	@$(eval CONTAINER := $(filter-out $@,$(MAKECMDGOALS)))
-	docker exec -it $(CONTAINER) /bin/bash
+prune:
+	docker system prune --all --force --volumes
 
-status: ${FILE}
-	@docker compose -f ${FILE} ps 
-	@echo "---"
-	@docker stats --no-stream ${SERVICES}
+reset:
+	docker stop $$(docker ps -qa) ; docker rm $$(docker ps -qa) ; \
+	docker rmi -f $$(docker images -qa) ; docker volume rm $$(docker volume ls -q) ; \
+	docker network rm $$(docker network ls -q)
 
-.PHONY: all re down clean
+re: fclean all
+
+info:
+		@echo "=============================== IMAGES ==============================="
+		@docker images
+		@echo
+		@echo "============================= CONTAINERS ============================="
+		@docker ps -a
+		@echo
+		@echo "=============== NETWORKS ==============="
+		@docker network ls
+		@echo
+		@echo "====== VOLUMES ======"
+		@docker volume ls

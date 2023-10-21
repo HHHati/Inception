@@ -1,12 +1,16 @@
 FROM debian:bullseye
 
-RUN apt-get update && apt-get install -y nginx openssl apache2 openrc
+RUN apt-get update && apt-get install -y nginx openssl
 
-RUN rc-update add apache2
+RUN mkdir -m 775 /etc/nginx/ssl
+RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+	-keyout /etc/nginx/ssl/bade-lee.key \
+	-out /etc/nginx/ssl/bade-lee.crt \
+	-subj "/C=FR/ST=Brussels/L=Brussels/O=19/OU=bade-lee/CN=bade-lee/"
 
-RUN mkdir -p /etc/nginx
-COPY ./conf/nginx.conf /etc/nginx/
-COPY ./tools/setup.sh  /
+COPY tools/default /etc/nginx/sites-available/default
+COPY conf/nginx.conf /etc/nginx/nginx
 
-RUN chmod +x /setup.sh
-ENTRYPOINT ["/setup.sh"]
+EXPOSE 443
+
+CMD ["nginx", "-g", "daemon off;"]

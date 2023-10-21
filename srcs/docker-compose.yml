@@ -1,65 +1,60 @@
-version: "3"
+version: '3.5'
 
 services:
-  mariadb:
-    image: mariadb
-    container_name: mariadb
-    build: ./requirements/mariadb
-    env_file: .env
-    volumes:
-      - DB:/var/lib/mysql
-    networks:
-      - inception-network
-    ports:
-      - "3306"
-    restart: on-failure
+    nginx:
+      container_name: nginx
+      build: requirements/nginx
+      image: nginx:bade-lee
+      depends_on:
+        - wordpress
+      networks:
+        - docker_network
+      ports:
+        - "443:443"
+      volumes:
+        - wordpress:/var/www/html
+      restart: always
+      env_file: .env
 
-  wordpress:
-    image: wordpress
-    container_name: wordpress
-    build: ./requirements/wordpress
-    env_file: .env
-    depends_on:
-      - mariadb
-    volumes:
-      - wordpress_files:/www/wordpress
-    networks:
-      - inception-network
-    ports:
-      - "9000"
-    restart: on-failure
+    mariadb:
+      container_name: mariadb
+      build: requirements/mariadb
+      image: mariadb:bade-lee
+      networks:
+        - docker_network
+      volumes:
+        - mariadb:/var/lib/mysql
+      restart: always
+      env_file: .env
 
-  nginx:
-    image: nginx
-    container_name: nginx
-    build: ./requirements/nginx
-    env_file: .env
-    volumes:
-      - wordpress_files:/www/wordpress
-    networks:
-      - inception-network
-    depends_on:
-      - wordpress
-    ports:
-      - "443:443"
-    restart: on-failure
-
-volumes:
-  DB:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /home/data_inception/DB/
-
-  wordpress_files:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /home/data_inception/wordpress_files/
-
+    wordpress:
+      container_name: wordpress
+      build: requirements/wordpress
+      image: wordpress:bade-lee
+      depends_on: 
+        - mariadb
+      networks:
+        - docker_network
+      volumes:
+        - wordpress:/var/www/html
+      restart: always
+      env_file: .env
 
 networks:
-  inception-network:
-    name: inception-network
+    docker_network:
+
+volumes:
+    wordpress:
+      name: wordpress
+      driver: local
+      driver_opts:
+        type: none
+        device: /home/bade-lee/data/html
+        o: bind
+    mariadb:
+      name: mariadb
+      driver: local
+      driver_opts:
+        type: none
+        device: /home/bade-lee/data/mysql
+        o: bind
