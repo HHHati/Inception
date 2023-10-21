@@ -1,4 +1,6 @@
 all:
+	@mkdir -p /home/bade-lee/data/mysql
+	@mkdir -p /home/bade-lee/data/html
 	@docker compose -f ./srcs/docker-compose.yml up -d --build
 
 down:
